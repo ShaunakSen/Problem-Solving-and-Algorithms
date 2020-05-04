@@ -1,11 +1,9 @@
 import multiprocessing
-import time
 from multiprocessing import Process
 import random
 
 global_var_list = [None]*4
 
-print (global_var_list)
 
 
 def heavy_op1(i,n):
@@ -17,8 +15,8 @@ def heavy_op1(i,n):
     print (f'Setting global var at idx: {i-1}')
     global_var_list[i-1] = True
     x = sorted([random.random() for i in range(n)])
-    print (len(x))
-    print (global_var_list)
+    print ('Function idx: ', i, len(x))
+    print ('Function idx: ',i, global_var_list)
 
 
 def main():
@@ -37,6 +35,6 @@ def main():
     p3.join()
     p4.join()
     print("We're done")
-    print (global_var_list)
+    print ('Global var at end of processing:', global_var_list)
 if __name__=="__main__":
     main()

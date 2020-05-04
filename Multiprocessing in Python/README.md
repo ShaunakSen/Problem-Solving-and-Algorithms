@@ -17,13 +17,11 @@ Code:
 ``` python
 
 import multiprocessing
-import time
 from multiprocessing import Process
 import random
 
 global_var_list = [None]*4
 
-print (global_var_list)
 
 
 def heavy_op1(i,n):
@@ -35,8 +33,8 @@ def heavy_op1(i,n):
     print (f'Setting global var at idx: {i-1}')
     global_var_list[i-1] = True
     x = sorted([random.random() for i in range(n)])
-    print (len(x))
-    print (global_var_list)
+    print ('Function idx: ', i, len(x))
+    print ('Function idx: ',i, global_var_list)
 
 
 def main():
@@ -55,7 +53,30 @@ def main():
     p3.join()
     p4.join()
     print("We're done")
-    print (global_var_list)
+    print ('Global var at end of processing:', global_var_list)
 if __name__=="__main__":
     main()
+```
+
+Output:
+
+```
+Started with n: 70000000
+Setting global var at idx: 1
+Started with n: 10000000
+Setting global var at idx: 0
+Started with n: 20000000
+Setting global var at idx: 3
+Started with n: 40000000
+Setting global var at idx: 2
+Function idx:  1 10000000
+Function idx:  1 [True, None, None, None]
+Function idx:  4 20000000
+Function idx:  4 [None, None, None, True]
+Function idx:  3 40000000
+Function idx:  3 [None, None, True, None]
+Function idx:  2 70000000
+Function idx:  2 [None, True, None, None]
+We're done
+Global var at end of processing: [None, None, None, None]
 ```
