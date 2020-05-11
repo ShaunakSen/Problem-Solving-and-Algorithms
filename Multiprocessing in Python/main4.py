@@ -6,14 +6,14 @@ def calc_squares(numbers):
     print ('calculating sqs...')
     print (f'process id: {os.getpid()}')
     for n in numbers:
-        time.sleep(10)
+        time.sleep(0.2)
         print (f'sq of {n} is {n**2}')
 
 def calc_cubes(numbers):
     print ('calculating cubes...')
     print (f'process id: {os.getpid()}')
     for n in numbers:
-        time.sleep(10)
+        time.sleep(0.2)
         print (f'cube of {n} is {n**3}')
 
 

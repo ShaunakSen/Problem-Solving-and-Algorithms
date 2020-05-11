@@ -279,6 +279,12 @@ In multithreading, there is only one core process (here pid of )
 
 <img src="./img/diag2.png">
 
+> Multithreading is really useful for IO bound operations when the CPU is just waiting to get back a response and we can do other stuff while CPU is idle. But if you want to do some CPU-intensive work that utilizes multiple cores, we need to use multiprocessing
+
+> Threads are lightweight while processes are heavyweight
+
+> A benefit of  multiprocessing is that error or memory leak in one process wont hurt execution of another process
+
 ### Multithreading example
 
 We want to calculate sqs and cubes of a set of numbers:
@@ -332,11 +338,79 @@ cube of 9 is 729
 Completed in 0.8045973777770996 seconds
 ```
 
+<img src="./img/diag3.png">
+
+
 ### Multithreading and global variables
 
 We have already seen that we cannot rely on global vars in multiprocessing as each process has its own virtual memory address which is different from that of the main memory.
 
-Let us inspect whether this is the same for multithreading
+Let us inspect whether this is the same for multithreading:
+
+
+Threads share the same address space as the main program, so the global variables can be acessed by them
+
+<img src="./img/diag4.png">
+
+For multiprocessing, they have their own address spaces and if they want to communicate, they can do so via
+
+1. A file on disk
+2. Shared memory
+3. Message pipe
+
+<img src="./img/diag5.png">
+
+### Sharing Data Between Processes Using Array and Value
+
+New process gets its own address space. We can solve this by using **shared memory**
+
+#### Using Array
+
+```python
+def calc_squares(numbers, result):
+    for idx, n in enumerate(numbers):
+        result[idx] = n**2
+    print (f'Within process: {result[:]}')
+
+if __name__=="__main__":
+    numbers = [2,3,5]
+    # create a shared memory var
+    result = multiprocessing.Array('i', 3)
+    p = multiprocessing.Process(target=calc_squares, args=(numbers, result))
+
+    p.start()
+    p.join()
+
+    print(f'Outside process {result[:]}')
+```
+
+#### Using value
+
+```python
+def calc_squares(numbers, result, value):
+    value.value = 5.0
+    for idx, n in enumerate(numbers):
+        result[idx] = n**2
+    print (f'Within process: {result[:]}, {value.value}')
+
+if __name__=="__main__":
+    numbers = [2,3,5]
+    # create a shared memory var
+    result = multiprocessing.Array('i', 3)
+    value = multiprocessing.Value('d', 0.0)
+    p = multiprocessing.Process(target=calc_squares, args=(numbers, result, value))
+
+    p.start()
+    p.join()
+
+    print(f'Outside process {result[:]},{value.value}')
+```
+
+### Sharing Data Between Processes Using Queue
+
+
+
+
 
 
 
