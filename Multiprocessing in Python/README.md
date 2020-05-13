@@ -478,7 +478,121 @@ End of main...
 
 > Also queues can store complex python objects as we have stored dictionaries here
 
+### Multiprocessing Lock
 
+Why do we need a lock?
+
+In real life we need a lock when multiple people are looking to access a shared resource, like a toilet
+
+In CS, whenever 2 processes or threads are trying to access a shared resource (like shared memory, files or db) it can create problems
+So, we need to protect that access using a lock
+
+``` python
+
+def deposit(balance):
+    for i in range(100):
+        time.sleep(0.1)
+        balance.value = balance.value + 1
+def withdraw(balance):
+    for i in range(100):
+        time.sleep(0.1)
+        balance.value = balance.value - 1
+
+if __name__=="__main__":
+    # init balance
+    balance = multiprocessing.Value('i', 200)
+
+    d = multiprocessing.Process(target=deposit, args=(balance, ))
+    w = multiprocessing.Process(target=withdraw, args=(balance, ))
+
+    d.start()
+    w.start()
+
+    d.join()
+    w.join()
+
+    print (f'Final balance: {balance.value}')
+
+```
+
+This is an example of a simple banking sw. We have 2 processes accessing a shared var
+
+One process deposits 1 Re 100 times and the other withdraws 1 Re 100 times
+
+So ideally we would expect the same balance at the end
+
+But it is not the case
+
+Sample Outputs:
+```
+Final balance: 195
+Final balance: 202
+Final balance: 181
+```
+
+Why does this happen?
+
+- Say initially balance is 200
+- The deposit process reads 200 as value and increments 1 and has to put it back into the same var
+- At an OS level this simple operation has multiple assemply line instructions like
+```
+    READ balance
+    ADD 1
+    SET balance to balance + 1
+    WRITE back balance
+```
+- While this process was executing the withdraw process also read balance value and instead of 201 it read it as 200 and wrote back 199
+
+This is one simple case inconsistency might occur due to accessing shared variable
+
+#### Critical Section
+
+Whichever part of your code accesses the shared variable, is called a CS
+
+Before accessing the CS, we should acquire a lock and after the CS is done, we release the lock
+
+Code:
+
+```python
+
+def deposit(balance, lock):
+    for i in range(100):
+        time.sleep(0.1)
+        ### CS start : acquire lock
+        lock.acquire()
+        balance.value = balance.value + 1
+        ### CS end: release lock
+        lock.release()
+def withdraw(balance, lock):
+    for i in range(100):
+        time.sleep(0.1)
+        ### CS start : acquire lock
+        lock.acquire()
+        balance.value = balance.value - 1
+        ### CS end: release lock
+        lock.release()
+
+if __name__=="__main__":
+    # init balance
+    balance = multiprocessing.Value('i', 200)
+
+    ## init a lock
+    lock = multiprocessing.Lock()
+
+    d = multiprocessing.Process(target=deposit, args=(balance, lock))
+    w = multiprocessing.Process(target=withdraw, args=(balance, lock))
+
+    d.start()
+    w.start()
+
+    d.join()
+    w.join()
+
+    print (f'Final balance: {balance.value}')
+
+```
+
+Now everytime op will be 200
 
 
 

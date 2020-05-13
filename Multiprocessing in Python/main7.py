@@ -1,25 +1,37 @@
 import multiprocessing
+import time
 
-def cal_squares(idx, numbers, q):
-    for n in numbers:
-        q.put({'id': idx, 'value': n**2})
-
+def deposit(balance, lock):
+    for i in range(100):
+        time.sleep(0.1)
+        ### CS start : acquire lock
+        lock.acquire()
+        balance.value = balance.value + 1
+        ### CS end: release lock
+        lock.release()
+def withdraw(balance, lock):
+    for i in range(100):
+        time.sleep(0.1)
+        ### CS start : acquire lock
+        lock.acquire()
+        balance.value = balance.value - 1
+        ### CS end: release lock
+        lock.release()
 
 if __name__=="__main__":
-    numbers = [3,4,5]
-    numbers2 = [9,8,7]
+    # init balance
+    balance = multiprocessing.Value('i', 200)
 
-    q1, q2 = multiprocessing.Queue(), multiprocessing.Queue()
-    p1 = multiprocessing.Process(target=cal_squares, args=(1, numbers, q1))
-    p2 = multiprocessing.Process(target=cal_squares, args=(2, numbers2, q2))
+    ## init a lock
+    lock = multiprocessing.Lock()
 
-    p1.start()
-    p2.start()
-    p1.join()
-    p2.join()
+    d = multiprocessing.Process(target=deposit, args=(balance, lock))
+    w = multiprocessing.Process(target=withdraw, args=(balance, lock))
 
-    while not q1.empty():
-        print(q1.get())
+    d.start()
+    w.start()
 
-    while not q2.empty():
-        print(q2.get())
+    d.join()
+    w.join()
+
+    print (f'Final balance: {balance.value}')
