@@ -406,8 +406,77 @@ if __name__=="__main__":
     print(f'Outside process {result[:]},{value.value}')
 ```
 
+Output:
+```
+Within process: [4, 9, 25], 5.0
+Outside process [4, 9, 25],5.0
+```
+
 ### Sharing Data Between Processes Using Queue
 
+
+We saw that there are multiple ways by which processes can share data:
+
+<img src="./img/diag5.png">
+
+Queue is basically **shared memory**
+
+<img src="./img/diag6.png">
+
+Code:
+
+``` python
+def calc_squares(i, numbers, q):
+    for idx, n in enumerate(numbers):
+        # push to queue
+        q.put({'idx': idx, 'n_sq': str(n**2)})
+
+if __name__=="__main__":
+    numbers1, numbers2 = [2,3,5], [5,6,7]
+    
+    # create two queues
+    q1 = multiprocessing.Queue()
+    q2 = multiprocessing.Queue()
+
+    # create 2 processes
+    p1 = multiprocessing.Process(target=calc_squares, args=(1, numbers1, q1))
+    p2 = multiprocessing.Process(target=calc_squares, args=(2, numbers2, q2))
+
+    p1.start()
+    p2.start()
+
+    p1.join()
+    p2.join()
+
+    while not q1.empty():
+        print (f'Within main: {q1.get()}')
+    while not q2.empty():
+        print (f'Within main: {q2.get()}')
+
+    print (f'Is q1 empty: {q1.empty()}')
+    print (f'Is q2 empty: {q2.empty()}')
+
+    print ('End of main...')
+```
+
+Output:
+
+```
+Within main: {'idx': 0, 'n_sq': '4'}
+Within main: {'idx': 1, 'n_sq': '9'}
+Within main: {'idx': 2, 'n_sq': '25'}
+Within main: {'idx': 0, 'n_sq': '25'}
+Within main: {'idx': 1, 'n_sq': '36'}
+Within main: {'idx': 2, 'n_sq': '49'}
+Is q1 empty: True
+Is q2 empty: True
+End of main...
+```
+
+> NOTE: One we apply `.get()` method on the queue, the elements are popped out. So if we put the while loop inside the
+`calc_squares` function, the queue will be empty in the main as it is shared memory
+
+> Also queues can store complex python objects as we have stored dictionaries here
 
 
 
