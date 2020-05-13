@@ -487,6 +487,9 @@ In real life we need a lock when multiple people are looking to access a shared 
 In CS, whenever 2 processes or threads are trying to access a shared resource (like shared memory, files or db) it can create problems
 So, we need to protect that access using a lock
 
+<img src="./img/diag7.png">
+
+
 ``` python
 
 def deposit(balance):
@@ -594,6 +597,65 @@ if __name__=="__main__":
 
 Now everytime op will be 200
 
+### Multiprocessing Pool (Map Reduce)
+
+Say we have a program to calculate sq of the numbers: `[1,2,3,4,5]`
 
 
+Typically when we write a function and execute it, only 1 core of CPU will be used
 
+<img src="./img/diag8.png">
+
+
+But we can divide up the work and use multiple cores
+
+<img src="./img/diag9.png">
+
+The process of dividing the ip bw multiple cores is called **map**
+
+The process of aggregating the results back is called **reduce**
+
+
+Code:
+
+```python
+def f(n):
+    sum=0
+    for x in range(10000):
+        sum+=x**2
+    return sum
+
+if __name__ == "__main__":
+    t1 = time.time()
+    p = Pool()
+    # map is used to divide the work into multiple cores
+    # this will automatically div the work among all cpu cores
+    # and it will return the result
+    result = p.map(func=f, iterable=range(10000))
+    p.close()
+    p.join()
+
+    print (f'Pool took {time.time() - t1}s')
+    print (f'Result sum: {sum(result)}')
+
+    t2 = time.time()
+    result = []
+    for x in range(10000):
+        result.append(f(x))
+
+    print(f'Serial operaltion took {time.time() - t2}s')
+    print (f'Result sum: {sum(result)}')
+```
+
+Output:
+
+```
+Pool took 22.81440305709839s
+Result sum: 3332833350000000
+Serial operaltion took 95.67702722549438s
+Result sum: 3332833350000000
+```
+
+We can see Pool was significantly faster
+
+Pool has an argument processes by which we can explicitly set the number of processes to create
