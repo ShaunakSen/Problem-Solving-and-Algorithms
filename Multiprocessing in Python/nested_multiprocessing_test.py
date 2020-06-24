@@ -26,6 +26,8 @@ def main():
         p = Pool()
         func = partial(process_request, week)
         results = p.map(func, requests_for_this_week)
+        p.close()
+        p.join()
         all_results.append(results)
         # for req in requests_for_this_week:
         #     all_results.append(process_request(week, req))
