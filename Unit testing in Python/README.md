@@ -69,3 +69,94 @@ test_mathlib.py::test_calc_prod PASSED                                          
 ```
 
 This is a useful way of finding which functions (tests) were actually executed
+
+## Skip/selectively run tests in pytest
+
+Say we want to skip running the `test_calc_total` test for the moment
+
+```python
+import mathlib
+import pytest
+
+@pytest.mark.skip(reason="I am lazy")
+def test_calc_total():
+    total = mathlib.calc_total(4, 5)
+    assert total == sum([4,5])
+
+def test_calc_prod():
+    prod = mathlib.calc_prod(4, 5)
+    assert prod == 4*5
+```
+
+If we want to see the reason in the op log: `py.test -v -rxs`
+
+```bash
+PS C:\Users\shaun\Documents\my_projects\problem-solving-with-code\Unit testing in Python> py.test -v -rxs
+===================================================================================== test session starts ===================================================================================== 
+platform win32 -- Python 3.7.4, pytest-5.3.2, py-1.8.1, pluggy-0.13.1 -- c:\users\shaun\appdata\local\programs\python\python37\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\shaun\Documents\my_projects\problem-solving-with-code\Unit testing in Python
+plugins: dash-1.9.0
+collected 2 items                                                                                                                                                                               
+
+test_mathlib.py::test_calc_total SKIPPED                                                                                                                                                 [ 50%] 
+test_mathlib.py::test_calc_prod PASSED                                                                                                                                                   [100%] 
+
+=================================================================================== short test summary info =================================================================================== 
+SKIPPED [1] test_mathlib.py:4: I am lazy
+================================================================================ 1 passed, 1 skipped in 2.07s =================================================================================
+```
+
+Sometimes we might want to skip a test if certain conditions are met. In that case we use the decorator: `pytest.mark.skipif`
+
+```python
+import mathlib
+import pytest
+import sys
+
+@pytest.mark.skipif(sys.version_info < (3,5), reason="Python version > 3.5")
+def test_calc_total():
+    total = mathlib.calc_total(4, 5)
+    assert total == sum([4,5])
+
+def test_calc_prod():
+    prod = mathlib.calc_prod(4, 5)
+    assert prod == 4*5
+```
+
+```bash
+PS C:\Users\shaun\Documents\my_projects\problem-solving-with-code\Unit testing in Python> py.test -v -rxs
+===================================================================================== test session starts ===================================================================================== 
+platform win32 -- Python 3.7.4, pytest-5.3.2, py-1.8.1, pluggy-0.13.1 -- c:\users\shaun\appdata\local\programs\python\python37\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\shaun\Documents\my_projects\problem-solving-with-code\Unit testing in Python
+plugins: dash-1.9.0
+collected 2 items                                                                                                                                                                               
+
+test_mathlib.py::test_calc_total SKIPPED                                                                                                                                                 [ 50%] 
+test_mathlib.py::test_calc_prod PASSED                                                                                                                                                   [100%] 
+
+=================================================================================== short test summary info =================================================================================== 
+SKIPPED [1] test_mathlib.py:5: Python version > 3.5
+================================================================================ 1 passed, 1 skipped in 1.90s =================================================================================
+```
+
+### Run tests based on name
+
+Say we want to run all tests which have "prod" in their names
+
+`py.test -v -rxs -k prod`
+
+```bash
+PS C:\Users\shaun\Documents\my_projects\problem-solving-with-code\Unit testing in Python>  py.test -v -rxs -k prod
+===================================================================================== test session starts ===================================================================================== 
+platform win32 -- Python 3.7.4, pytest-5.3.2, py-1.8.1, pluggy-0.13.1 -- c:\users\shaun\appdata\local\programs\python\python37\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\shaun\Documents\my_projects\problem-solving-with-code\Unit testing in Python
+plugins: dash-1.9.0
+collected 2 items / 1 deselected / 1 selected                                                                                                                                                   
+
+test_mathlib.py::test_calc_prod PASSED                                                                                                                                                   [100%] 
+
+=============================================================================== 1 passed, 1 deselected in 1.32s ===============================================================================
+```
