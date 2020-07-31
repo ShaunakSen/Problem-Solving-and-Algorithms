@@ -24,9 +24,3 @@ def main():
 
 if __name__=="__main__":
     main()
-
-"""
-TEST 1 : if more keys all values should be there
-TEST 2: no of None == diff in lengths of keys and values
-
-"""
