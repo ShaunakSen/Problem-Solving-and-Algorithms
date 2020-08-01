@@ -8,29 +8,6 @@ ERROR_CODE_MESSGAES = {
     100: 'Password Successful'
 }
 
-def password_check_historical(test_string):
-    all_errors = []
-    if(1<=len(test_string)<=20):
-        str_len=len(test_string)
-        # first char check
-        match_1=re.match("[À-Ö]",test_string[0])
-        if(bool(match_1)==True):
-            # all chars check
-            match_2=re.fullmatch("[À-Ö0-9.-]*", test_string[1:str_len-1])
-            if(bool(match_2)==True):
-                # last char check
-                match_3=re.match("[À-Ö0-9]",test_string[str_len-1])
-                if(bool(match_3)==True):
-                    return ERROR_CODE_MESSGAES[100]
-                else:
-                    all_errors.append(-4)
-            else:
-                all_errors.append(-3)
-        else:
-            all_errors.append(-2)
-    else:
-        all_errors.append(-1)
-    return all_errors
 
 def password_check(test_string):
     all_error_codes = []
