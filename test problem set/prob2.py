@@ -35,24 +35,26 @@ def password_check_historical(test_string):
 def password_check(test_string):
     all_error_codes = []
     str_len=len(test_string)
+    print (str_len)
     if not (str_len >=1 and str_len <=20):
         all_error_codes.append(-1)
-    # first char check
-    match_1=re.match("[À-Ö]",test_string[0])
-    if not bool(match_1):
-        all_error_codes.append(-2)
-    # all chars check
-    match_2=re.fullmatch("[À-Ö0-9.-]*", test_string[1:str_len-1])
-    if not bool(match_2):
-        all_error_codes.append(-3)
-    # last char check
-    match_3=re.match("[À-Ö0-9]",test_string[str_len-1])
-    if not bool(match_3):
-        all_error_codes.append(-4)
+    if str_len > 0:
+        # first char check
+        match_1=re.match("[À-Ö]",test_string[0])
+        if not bool(match_1):
+            all_error_codes.append(-2)
+        # all chars check
+        match_2=re.fullmatch("[À-Ö0-9.-]*", test_string[1:str_len-1])
+        if not bool(match_2):
+            all_error_codes.append(-3)
+        # last char check
+        match_3=re.match("[À-Ö0-9]",test_string[str_len-1])
+        if not bool(match_3):
+            all_error_codes.append(-4)
     
     ## check if any errors ocurred
     if len(all_error_codes) == 0:
-        return all_error_codes, ERROR_CODE_MESSGAES[100]
+        return all_error_codes, ERROR_CODE_MESSGAES[100].strip()
     else:
         message = ""
         for code_ in all_error_codes:
@@ -61,4 +63,4 @@ def password_check(test_string):
     return all_error_codes, message[:-2].strip()
     
 
-print (password_check('ÀÀÀÀ12-.34"'))
+print (password_check(''))
