@@ -44,6 +44,8 @@ MAX(SALARY) OVER() as max_salary
 FROM employee e;
 
 
+--- now we want the max salary at a dept level along with the other cols
+
 SELECT e.*,
 MAX(SALARY) OVER(PARTITION BY DEPT_NAME) as max_salary 
 FROM employee e;
@@ -53,5 +55,44 @@ SELECT e.*,
 ROW_NUMBER () OVER(PARTITION BY DEPT_NAME) AS rn
 FROM employee e 
 
+--- Say we want to fetch 1st 2 employees that joined company in each dept, Assume emp_id is lower for employees who joined earlier
+SELECT * FROM (
+	SELECT e.*,
+	ROW_NUMBER () OVER(PARTITION BY DEPT_NAME ORDER BY emp_ID) AS rn
+	FROM employee e 
+) x
+WHERE x.rn < 3
 
+--- Fetch top 3 employees in each dept earning max salary
+SELECT * FROM (
+	SELECT e.*,
+	RANK() OVER(PARTITION BY DEPT_NAME ORDER BY SALARY DESC) AS `rank`
+	FROM employee e 
+) x
+WHERE x.rank < 4
+
+
+--- Rank vs Dense Rank vs Row no
+
+SELECT e.*,
+RANK() OVER(PARTITION BY DEPT_NAME ORDER BY SALARY DESC) AS `rank`,
+DENSE_RANK () OVER(PARTITION BY DEPT_NAME ORDER BY SALARY DESC) AS `dense_rank`,
+ROW_NUMBER () OVER(PARTITION BY DEPT_NAME ORDER BY SALARY DESC) AS `rn`
+FROM employee e 
+
+
+--- Lead and Lag
+SELECT e.*,
+LAG(SALARY, 2, -1) OVER (PARTITION BY DEPT_NAME ORDER BY emp_ID) AS prev_emp_salary,
+LEAD(SALARY, 2, -1) OVER (PARTITION BY DEPT_NAME ORDER BY emp_ID) AS next_emp_salary
+FROM employee e
+
+--- compare salary of each employee with prev one in the dept
+SELECT e.*,
+LAG(SALARY) OVER (PARTITION BY DEPT_NAME ORDER BY emp_ID) AS prev_emp_salary,
+CASE WHEN e.SALARY > LAG(SALARY) OVER (PARTITION BY DEPT_NAME ORDER BY emp_ID) THEN 'higher than prev'
+	WHEN e.SALARY < LAG(SALARY) OVER (PARTITION BY DEPT_NAME ORDER BY emp_ID) THEN 'lower than prev'
+	WHEN e.SALARY = LAG(SALARY) OVER (PARTITION BY DEPT_NAME ORDER BY emp_ID) THEN 'same as prev'
+END salary_comparison
+FROM employee e
 
