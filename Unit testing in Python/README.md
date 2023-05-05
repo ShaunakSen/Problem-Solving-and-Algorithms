@@ -160,3 +160,23 @@ test_mathlib.py::test_calc_prod PASSED                                          
 
 =============================================================================== 1 passed, 1 deselected in 1.32s ===============================================================================
 ```
+
+
+## PyTest : Python Test Framework Tutorials
+
+> https://www.youtube.com/playlist?list=PLFGoYjJG_fqoMMmCKLeLGQzh6Jz4CmO2Y
+
+---
+
+
+`py.test`
+
+- this command will look for all files stating or ending with "test" in the project dir and run functions stating or ending with "test"
+
+`py.test filename` 
+
+- only execute tests in that file name
+
+`py.test -k  login -v`
+
+- execute tests with "login" in the function name
